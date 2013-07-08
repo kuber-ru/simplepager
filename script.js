@@ -93,15 +93,14 @@
         }
         
         function getCountPages(){
-            blocked = true;
-            console.log(blocked);
+           if(isNaN(settings.page))return;
             $.ajax({
                 type: "POST",
                 url: settings.urlCountALL,
                 data: {
                     page: settings.page
                 },
-                contentType: "application/json; charset=utf-8",
+                //contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 async: false,
                 success : function(data){
@@ -110,7 +109,6 @@
                 $('#pagination').html(populateHTML());
                 indexPages();
                 setActivePage();
-                blocked = false;
                 settings.getItems(getSettings());
                 
             }
@@ -125,7 +123,6 @@
         }
         
         $('body').on('click', '#pagination li',function(event){
-            if(blocked) return;
             if ($(this).hasClass('notPage')) return;
             
             event.preventDefault();
@@ -136,11 +133,8 @@
         });
         
         $('body').on('click', '.notPage',function(event){
-            console.log(blocked);
             event.preventDefault();
-            if(blocked) return;
             settings.prevPage = settings.page;
-          //  if(isNaN(settings.page)) return false;
             if($(this).hasClass("prev")){
                 if (settings.page == 1) {
                     settings.page =  settings.pages;
@@ -165,8 +159,6 @@
             getCountPages();
         });
         
-       
-        blocked = true;
         getCountPages();
         return;
     };

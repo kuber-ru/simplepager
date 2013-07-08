@@ -13,11 +13,7 @@
             urlCountALL : '',
             classActivePage: 'active',
             numlinks: 3,
-            start : function(){},
-            finish : function(){},
-            pushQuery: function(){},
-            receiveQuery: function(){},
-            clickPage: function(){},
+            getItems: function(){},
             page: 1,
             total: null
             
@@ -59,17 +55,17 @@
         }
         
         function getCountPages(){
-            settings.pushQuery(this);
-            $.getJSON(settings.urlCountALL, {page: settings.page}, function(data) {
+          
+            $.post(settings.urlCountALL, {page: settings.page, method: "getCountPages"}, function(data) {
    
-                settings.receiveQuery(data);
-                
+               
                 settings.total = data.countPages;
                 
                 $('#pagination').html(populateHTML());
                 indexPages();
                 setActivePage();
-            });
+                settings.getItems(getSettings());
+            },"json");
         }
         
         function setActivePage(){
@@ -78,17 +74,13 @@
                 if($(this).text() == settings.page) $(this).addClass(settings.classActivePage);
             });
         }
-
-          
-        settings.start(this);
-        
         
         $('body').on('click', '#pagination li',function(event){
            
             if ($(this).hasClass('notPage')) return;
             
             event.preventDefault();
-            settings.clickPage(getSettings());
+           
             settings.page = $(settings.pages$[$(this).data('pager-index')]).text();
             getCountPages();
         });
@@ -116,8 +108,7 @@
        
         
         getCountPages();
-        settings.finish(this);
-        
+       
         return;
     };
 })(jQuery);
@@ -128,17 +119,10 @@ $(function(){
          urlCountALL: 'pagination.php',
          per_page: 10,
          classActivePage: 'active',
-         finish: function(){
-           //  console.log("pager: Успешно создан!");
-         },
-         clickPage: function(options){
-             console.log(options);
-         },
-         start: function(){
-           //  console.log("pager: Начало инициализации!");
-         },
-         receiveQuery: function(data){
-            // console.log(data);
+         getItems: function(options){
+             $.post(options.urlCountALL, {options: options, method: "getItems"}, function(data) {
+                   $("#items").html(data);
+            }, "html");
          }
      });
 });

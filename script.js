@@ -20,7 +20,16 @@
             total: null
             
         },options||{});
-   
+        
+        function getSettings(){
+            return {
+               per_page: settings.per_page,
+               base_url : settings.base_url,
+               urlCountALL : settings.urlCountALL,
+               page: settings.page,
+               total:  settings.total 
+            }
+        }
         function populateHTML(){
             pages = (settings.total - settings.total%settings.per_page)/settings.per_page
              html = '<ul>';
@@ -67,10 +76,9 @@
 
           
         settings.start(this);
-        
         $('body').on('click', '#pagination li',function(event){
             event.preventDefault();
-            settings.clickPage(settings);
+            settings.clickPage(getSettings());
             settings.page = $(settings.pages$[$(this).data('pager-index')]).text();
             getCountPages();
         });
@@ -89,16 +97,16 @@ $(function(){
          urlCountALL: 'pagination.php',
          per_page: 10,
          finish: function(){
-             console.log("pager: Успешно создан!");
+           //  console.log("pager: Успешно создан!");
          },
          clickPage: function(options){
              console.log(options);
          },
          start: function(){
-             console.log("pager: Начало инициализации!");
+           //  console.log("pager: Начало инициализации!");
          },
          receiveQuery: function(data){
-             console.log(data);
+            // console.log(data);
          }
      });
 });

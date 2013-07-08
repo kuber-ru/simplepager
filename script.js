@@ -12,6 +12,7 @@
             base_url : '',
             urlCountALL : '',
             classActivePage: 'active',
+            numlinks: 3,
             start : function(){},
             finish : function(){},
             pushQuery: function(){},
@@ -34,13 +35,13 @@
         }
         function populateHTML(){
             pages = (settings.total - settings.total%settings.per_page)/settings.per_page
-             html = '<ul>';
-             html += '<li class="notPage prev"><a href="#prev">' + 'Предыдущая' + '</a></li>';
+            html = '<ul>';
+            html += '<li class="notPage prev"><a href="#prev">' + 'Предыдущая' + '</a></li>';
                 for(var i = 1; i <= pages + 1; i++){
                     html += '<li>' + createLink(i) + '</li>';
                 }
-             html += '<li class="notPage next"><a href="#next">' + 'Следующая' + '</a></li>';
-             html += '</ul>';
+            html += '<li class="notPage next"><a href="#next">' + 'Следующая' + '</a></li>';
+            html += '</ul>';
         return html;
         }
         
@@ -107,8 +108,7 @@
                    settings.page = 1;
                } else {
                    settings.page++;
-               }
-                
+               }    
            }
            getCountPages();
         });

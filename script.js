@@ -20,6 +20,8 @@
             prevPage:null
         },options||{});
         
+       
+        
         function getSettings(){
             return {
                 per_page: settings.per_page,
@@ -38,7 +40,11 @@
             if(settings.numlinks == 0){
                 html += '<li>' + createLink(settings.page) + '</li>';
             }
-                
+            
+            if((settings.page - settings.numlinks) == 0 && (settings.page + settings.numlinks == settings.pages) && settings.numlinks > 0){
+                   console.log("Fuck!");
+            }
+            
             if((settings.page - settings.numlinks) > 0 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
                 html += '<li><a href="#" class="notPage">...</a></li>';
                
@@ -87,7 +93,8 @@
         }
         
         function getCountPages(){
-  
+            blocked = true;
+            console.log(blocked);
             $.ajax({
                 type: "POST",
                 url: settings.urlCountALL,
@@ -97,13 +104,15 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 async: false,
-            success : function(data){
+                success : function(data){
                 settings.total = data.countItems;
                 settings.pages = ((settings.total - settings.total%settings.per_page)/settings.per_page) + 1;
                 $('#pagination').html(populateHTML());
                 indexPages();
                 setActivePage();
+                blocked = false;
                 settings.getItems(getSettings());
+                
             }
         })
         }
@@ -116,7 +125,7 @@
         }
         
         $('body').on('click', '#pagination li',function(event){
-           
+            if(blocked) return;
             if ($(this).hasClass('notPage')) return;
             
             event.preventDefault();
@@ -127,29 +136,37 @@
         });
         
         $('body').on('click', '.notPage',function(event){
+            console.log(blocked);
             event.preventDefault();
+            if(blocked) return;
             settings.prevPage = settings.page;
-          
+          //  if(isNaN(settings.page)) return false;
             if($(this).hasClass("prev")){
                 if (settings.page == 1) {
-                    settings.page =  settings.pages
+                    settings.page =  settings.pages;
+                    
                 } else {
                     settings.page--;
                 }
+                
             }
             if($(this).hasClass("next")){
                 if(settings.page ==  settings.pages){
                     settings.page = 1;
-                } else {
-                    console.log(settings.page);
+                };
+                if(settings.page < settings.pages){  
                     settings.page++;
-                }    
+                } else {
+                    settings.page = 1;
+                }
+                
+              
             }
             getCountPages();
         });
         
        
-        
+        blocked = true;
         getCountPages();
         return;
     };

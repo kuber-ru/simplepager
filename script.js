@@ -8,15 +8,14 @@
     $.fn.Pagination = function(options){
         
         var settings = $.extend({
+            urlCountALL : '',
             per_page: 10,
             base_url : '',
-            urlCountALL : '',
             classActivePage: 'active',
             numlinks: 3,
             getItems: function(){},
             page: 1,
             total: null
-            
         },options||{});
         
         function getSettings(){
@@ -116,11 +115,9 @@
 
 $(function(){
      $('#pagination').Pagination({
-         urlCountALL: 'pagination.php',
-         per_page: 10,
-         classActivePage: 'active',
+         urlCountALL: 'getCountPages.php',
          getItems: function(options){
-             $.post(options.urlCountALL, {options: options, method: "getItems"}, function(data) {
+             $.post("getItems.php", {options: options, method: "getItems"}, function(data) {
                    $("#items").html(data);
             }, "html");
          }

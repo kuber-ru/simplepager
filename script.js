@@ -12,59 +12,100 @@
             per_page: 10,
             base_url : '',
             classActivePage: 'active',
-            numlinks: 3,
+            numlinks: 2,
             getItems: function(){},
             page: 1,
-            total: null
+            total: null,
+            pages: null,
+            prevPage:null
         },options||{});
         
         function getSettings(){
             return {
-               per_page: settings.per_page,
-               base_url : settings.base_url,
-               urlCountALL : settings.urlCountALL,
-               page: settings.page,
-               total:  settings.total,
-               classActivePage: settings.classActivePage
+                per_page: settings.per_page,
+                base_url : settings.base_url,
+                urlCountALL : settings.urlCountALL,
+                page: settings.page,
+                total:  settings.total,
+                classActivePage: settings.classActivePage
             }
         }
         function populateHTML(){
-            pages = (settings.total - settings.total%settings.per_page)/settings.per_page
             html = '<ul>';
             html += '<li class="notPage prev"><a href="#prev">' + 'Предыдущая' + '</a></li>';
-                for(var i = 1; i <= pages + 1; i++){
+          
+                
+            if(settings.numlinks == 0){
+                html += '<li>' + createLink(settings.page) + '</li>';
+            }
+                
+            if((settings.page - settings.numlinks) > 0 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
+                html += '<li><a href="#" class="notPage">...</a></li>';
+               
+                for(var i = settings.page - settings.numlinks; i <= (settings.page + settings.numlinks); i++){
                     html += '<li>' + createLink(i) + '</li>';
+                        
                 }
+                html += '<li><a href="#" class="notPage">...</a></li>';
+            }
+                
+            if((settings.page - settings.numlinks) <= 0 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
+                 
+                for(var i = 1; i <= (settings.page + settings.numlinks); i++){
+                    html += '<li>' + createLink(i) + '</li>';
+                        
+                }
+                html += '<li><a href="#" class="notPage">...</a></li>';
+            }
+
+            if((settings.page - settings.numlinks) > 0 && (settings.page + settings.numlinks >= settings.pages) && settings.numlinks > 0){
+                html += '<li><a href="#" class="notPage">...</a></li>';
+                for(var i = settings.page - settings.numlinks; i <= settings.pages; i++){
+                    html += '<li>' + createLink(i) + '</li>';
+                        
+                }
+            }
+                
             html += '<li class="notPage next"><a href="#next">' + 'Следующая' + '</a></li>';
             html += '</ul>';
-        return html;
+            return html;
         }
         
+        
         function indexPages(){
-        settings.pages$ = $('#pagination').find('li');
+            settings.pages$ = $('#pagination').find('li');
             settings.pages$.each(
-                function(n){ $(this).data('pager-index',n); 
-            });
+                function(n){
+                    $(this).data('pager-index',n); 
+                });
         }
         
         function createLink(page){
-           html = '';
-           html += '<a href="#' + page + '">' + page + '</a>';
-           return html;
+            html = '';
+            html += '<a href="#' + page + '">' + page + '</a>';
+            return html;
         }
         
         function getCountPages(){
-          
-            $.post(settings.urlCountALL, {page: settings.page, method: "getCountPages"}, function(data) {
-   
-               
-                settings.total = data.countPages;
-                
+  
+            $.ajax({
+                type: "POST",
+                url: settings.urlCountALL,
+                data: {
+                    page: settings.page
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: false,
+            success : function(data){
+                settings.total = data.countItems;
+                settings.pages = ((settings.total - settings.total%settings.per_page)/settings.per_page) + 1;
                 $('#pagination').html(populateHTML());
                 indexPages();
                 setActivePage();
                 settings.getItems(getSettings());
-            },"json");
+            }
+        })
         }
         
         function setActivePage(){
@@ -79,47 +120,52 @@
             if ($(this).hasClass('notPage')) return;
             
             event.preventDefault();
+            settings.prevPage = settings.page;
+            settings.page = parseInt($(settings.pages$[$(this).data('pager-index')]).text());
            
-            settings.page = $(settings.pages$[$(this).data('pager-index')]).text();
             getCountPages();
         });
         
         $('body').on('click', '.notPage',function(event){
-           event.preventDefault();
-           pages = (settings.total - settings.total%settings.per_page)/settings.per_page;
-           if($(this).hasClass("prev")){
-               if (settings.page == 1) {
-                   settings.page =  pages + 1
-               } else {
-                   settings.page--;
-               }
-           }
-           if($(this).hasClass("next")){
-               if(settings.page ==  pages + 1){
-                   settings.page = 1;
-               } else {
-                   settings.page++;
-               }    
-           }
-           getCountPages();
+            event.preventDefault();
+            settings.prevPage = settings.page;
+          
+            if($(this).hasClass("prev")){
+                if (settings.page == 1) {
+                    settings.page =  settings.pages
+                } else {
+                    settings.page--;
+                }
+            }
+            if($(this).hasClass("next")){
+                if(settings.page ==  settings.pages){
+                    settings.page = 1;
+                } else {
+                    console.log(settings.page);
+                    settings.page++;
+                }    
+            }
+            getCountPages();
         });
         
        
         
         getCountPages();
-       
         return;
     };
 })(jQuery);
 
 
 $(function(){
-     $('#pagination').Pagination({
-         urlCountALL: 'getCountPages.php',
-         getItems: function(options){
-             $.post("getItems.php", {options: options, method: "getItems"}, function(data) {
-                   $("#items").html(data);
+    $('#pagination').Pagination({
+        urlCountALL: 'getCountPages.php',
+        getItems: function(options){
+            $.post("getItems.php", {
+                options: options, 
+                method: "getItems"
+            }, function(data) {
+                $("#items").html(data);
             }, "html");
-         }
-     });
+        }
+    });
 });

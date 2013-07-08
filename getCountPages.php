@@ -4,6 +4,6 @@ $page = $_POST['page'];
 
 $result = array(
   'page' => $page,
-  'countPages' => count($items)
+  'countItems' => count($items)
 );
 echo json_encode($result);

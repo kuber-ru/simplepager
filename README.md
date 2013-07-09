@@ -16,15 +16,25 @@ Version
 
 Для простейшей инициализации достаточно указать URL по которому будет доступно общее количество элементов:
 
-```php
+```js
 $('.pagination').SimplePager({
         urlCountALL: 'getCountItems.php'
 });
 ```
+По данному URL должны возвращаться данные в формате JSON и обязательно в ответе должен присутствовать элемент countitems.
+Простейшая реализация выглядит так:
+```php
+// getCountItems.php
+$result = array(
+  'countItems' => count($items)
+);
+echo json_encode($result);
+```
+
 
 Для получения элементов для текущей таблицы предусмотрен метод getItems. Она вызывается при изменении страницы в EasyPager. В эту функцию передается объект, который содержит практически все необходимые для получения верных данных параметры.
 
-```php
+```js
 $('.pagination').SimplePager({
         urlCountALL: 'getCountItems.php',
         getItems: function(options){
@@ -32,16 +42,16 @@ $('.pagination').SimplePager({
                 function(data) { $("#items").html(data);}
             , "html");
         }
-    });
+});
 ```
-
+HTML разметка:
 ```html
 <div id="pagination" class="pagination"></div>
 <div id="items" class="items"></div>
 ```
 
 Дополнительные параметры:
-```php
+```js
 $('.pagination').SimplePager({
         urlCountALL: 'getCountItems.php', // URL по которому можно получить общее количество элементов
         per_page: 10, // Количество элементов на каждой странице

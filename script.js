@@ -12,15 +12,20 @@
             per_page: 10,
             base_url : '',
             classActivePage: 'active',
+            classPrev: 'prev',
+            classNext: 'next',
+            textPrev: 'Предыдущая',
+            textNext: 'Следующая',
             numlinks: 2,
             getItems: function(){},
             page: 1,
             total: null,
             pages: null,
-            prevPage:null
+            prevPage:null,
+           
         },options||{});
         
-       
+        paginationContainer = this;
         
         function getSettings(){
             return {
@@ -34,52 +39,49 @@
         }
         function populateHTML(){
             html = '<ul>';
-            html += '<li class="notPage prev"><a href="#prev">' + 'Предыдущая' + '</a></li>';
+            html += '<li class="notPage '+ settings.classPrev +'"><a href="#prev">' + settings.textPrev + '</a></li>';
           
                 
             if(settings.numlinks == 0){
                 html += '<li>' + createLink(settings.page) + '</li>';
             }
             
-            if((settings.page - settings.numlinks) == 0 && (settings.page + settings.numlinks == settings.pages) && settings.numlinks > 0){
-                   console.log("Fuck!");
+            
+            if((settings.page - settings.numlinks) <= 1 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
+                for(var i = 1; i <= (settings.page + settings.numlinks); i++){
+                    html += '<li>' + createLink(i) + '</li>';
+                }
+                html += '<li class="notPage"><a href="#" >...</a></li>';
             }
             
-            if((settings.page - settings.numlinks) > 0 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
-                html += '<li><a href="#" class="notPage">...</a></li>';
-               
+            if((settings.page - settings.numlinks) > 1 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
+                html += '<li class="notPage"><a href="#" >...</a></li>';
                 for(var i = settings.page - settings.numlinks; i <= (settings.page + settings.numlinks); i++){
                     html += '<li>' + createLink(i) + '</li>';
                         
                 }
-                html += '<li><a href="#" class="notPage">...</a></li>';
+                
+                html += '<li  class="notPage"><a href="#">...</a></li>';
             }
                 
-            if((settings.page - settings.numlinks) <= 0 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
-                 
-                for(var i = 1; i <= (settings.page + settings.numlinks); i++){
-                    html += '<li>' + createLink(i) + '</li>';
-                        
-                }
-                html += '<li><a href="#" class="notPage">...</a></li>';
-            }
+           
 
             if((settings.page - settings.numlinks) > 0 && (settings.page + settings.numlinks >= settings.pages) && settings.numlinks > 0){
-                html += '<li><a href="#" class="notPage">...</a></li>';
+                html += '<li class="notPage"><a href="#" >...</a></li>';
                 for(var i = settings.page - settings.numlinks; i <= settings.pages; i++){
                     html += '<li>' + createLink(i) + '</li>';
                         
                 }
             }
                 
-            html += '<li class="notPage next"><a href="#next">' + 'Следующая' + '</a></li>';
+            html += '<li class="notPage '+ settings.classNext +'"><a href="#next">' + settings.textNext + '</a></li>';
             html += '</ul>';
             return html;
         }
         
         
         function indexPages(){
-            settings.pages$ = $('#pagination').find('li');
+            settings.pages$ = $(paginationContainer).find('li');
             settings.pages$.each(
                 function(n){
                     $(this).data('pager-index',n); 
@@ -102,11 +104,11 @@
                 },
                 //contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                async: false,
+                async: true,
                 success : function(data){
                 settings.total = data.countItems;
                 settings.pages = ((settings.total - settings.total%settings.per_page)/settings.per_page) + 1;
-                $('#pagination').html(populateHTML());
+                $(paginationContainer).html(populateHTML());
                 indexPages();
                 setActivePage();
                 settings.getItems(getSettings());
@@ -122,11 +124,12 @@
             });
         }
         
-        $('body').on('click', '#pagination li',function(event){
+        ($(paginationContainer)).on('click', 'li',function(event){
             if ($(this).hasClass('notPage')) return;
             
             event.preventDefault();
             settings.prevPage = settings.page;
+            
             settings.page = parseInt($(settings.pages$[$(this).data('pager-index')]).text());
            
             getCountPages();
@@ -135,27 +138,15 @@
         $('body').on('click', '.notPage',function(event){
             event.preventDefault();
             settings.prevPage = settings.page;
-            if($(this).hasClass("prev")){
-                if (settings.page == 1) {
-                    settings.page =  settings.pages;
-                    
-                } else {
-                    settings.page--;
-                }
-                
+            
+            if($(this).hasClass(settings.classPrev)){
+                (settings.page <= 1) ? settings.page =  settings.pages : settings.page--;
             }
-            if($(this).hasClass("next")){
-                if(settings.page ==  settings.pages){
-                    settings.page = 1;
-                };
-                if(settings.page < settings.pages){  
-                    settings.page++;
-                } else {
-                    settings.page = 1;
-                }
-                
-              
+            
+            if($(this).hasClass(settings.classNext)){
+                (settings.page < settings.pages) ?  settings.page++ : settings.page = 1;
             }
+            console.log(window.history.length);
             getCountPages();
         });
         
@@ -166,7 +157,7 @@
 
 
 $(function(){
-    $('#pagination').Pagination({
+    $('.pagination').Pagination({
         urlCountALL: 'getCountPages.php',
         getItems: function(options){
             $.post("getItems.php", {

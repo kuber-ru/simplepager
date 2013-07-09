@@ -2,6 +2,7 @@
 .pagination {
     height: 36px;
     margin: 18px;
+    text-align:center;
 }
 .pagination ul {
     display: inline-block;

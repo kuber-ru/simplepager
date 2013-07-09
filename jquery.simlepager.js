@@ -1,5 +1,5 @@
 /* 
- * EasyPager 2013.
+ * SimplePager 2013.
  */
 
 

@@ -5,7 +5,7 @@
 
 
 (function($){
-    $.fn.Pagination = function(options){
+    $.fn.SimplePager = function(options){
         
         var settings = $.extend({
             urlCountALL : '',
@@ -158,8 +158,18 @@
 
 
 $(function(){
-    $('.pagination').Pagination({
-        urlCountALL: 'getCountPages.php',
+    $('.pagination').SimplePager({
+        urlCountALL: 'getCountItems.php', // URL по которому можно получить общее количество элементов
+        per_page: 10, // Количество элементов на каждой странице
+        classActivePage: 'active', // CSS класс для активной страницы
+        classPrev: 'prev', // CSS класс для ссылки "предыдущая"
+        classNext: 'next', // CSS класс для ссылки "следующая"
+        textPrev: 'Предыдущая', // текст для ссылки "предыдущая"
+        textNext: 'Следующая', // текст для ссылки "следующая"
+        dataWithPage: {}, // JS объект для передачи дополнительных параметров при переключении страниц
+        numlinks: 3, // количество ссылок, которое будет обрамлять активную страницу
+        getItems: function(){}, // Метод для получения самих элементов
+        page: 1, // Начальная страница
         getItems: function(options){
             $.post("getItems.php", { options: options }, 
                 function(data) { $("#items").html(data);}

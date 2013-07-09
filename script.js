@@ -16,13 +16,12 @@
             classNext: 'next',
             textPrev: 'Предыдущая',
             textNext: 'Следующая',
-            numlinks: 2,
+            numlinks: 3,
             getItems: function(){},
             page: 1,
             total: null,
             pages: null,
-            prevPage:null,
-           
+            prevPage:null
         },options||{});
         
         paginationContainer = this;
@@ -135,7 +134,7 @@
             getCountPages();
         });
         
-        $('body').on('click', '.notPage',function(event){
+        $(paginationContainer).on('click', '.notPage',function(event){
             event.preventDefault();
             settings.prevPage = settings.page;
             
@@ -146,7 +145,7 @@
             if($(this).hasClass(settings.classNext)){
                 (settings.page < settings.pages) ?  settings.page++ : settings.page = 1;
             }
-            console.log(window.history.length);
+            
             getCountPages();
         });
         

@@ -11,6 +11,8 @@ Version
 
 1.0
 
+<a href="http://kuberproject.kubannet.ru/easypager/" terget="_blank">DEMO</a>
+
 Использование
 -----------
 

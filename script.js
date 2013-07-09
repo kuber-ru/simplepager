@@ -10,12 +10,12 @@
         var settings = $.extend({
             urlCountALL : '',
             per_page: 10,
-            base_url : '',
             classActivePage: 'active',
             classPrev: 'prev',
             classNext: 'next',
             textPrev: 'Предыдущая',
             textNext: 'Следующая',
+            dataWithPage: {},
             numlinks: 3,
             getItems: function(){},
             page: 1,
@@ -29,16 +29,20 @@
         function getSettings(){
             return {
                 per_page: settings.per_page,
-                base_url : settings.base_url,
                 urlCountALL : settings.urlCountALL,
                 page: settings.page,
                 total:  settings.total,
-                classActivePage: settings.classActivePage
+                classActivePage: settings.classActivePage,
+                dataWithPage: settings.dataWithPage,
+                numlinks: settings.numlinks,
+                limit: settings.per_page,
+                offset: (settings.page - 1)*settings.per_page
             }
         }
+        
         function populateHTML(){
             html = '<ul>';
-            html += '<li class="notPage '+ settings.classPrev +'"><a href="#prev">' + settings.textPrev + '</a></li>';
+            html += '<li class="notPage '+ settings.classPrev +'"><a href="javascript:void(0)">' + settings.textPrev + '</a></li>';
           
                 
             if(settings.numlinks == 0){
@@ -50,34 +54,33 @@
                 for(var i = 1; i <= (settings.page + settings.numlinks); i++){
                     html += '<li>' + createLink(i) + '</li>';
                 }
-                html += '<li class="notPage"><a href="#" >...</a></li>';
+                html += '<li class="notPage"><a href="javascript:void(0)" >...</a></li>';
             }
             
             if((settings.page - settings.numlinks) > 1 && (settings.page + settings.numlinks < settings.pages) && settings.numlinks > 0){
-                html += '<li class="notPage"><a href="#" >...</a></li>';
+                html += '<li class="notPage"><a href="javascript:void(0)" >...</a></li>';
                 for(var i = settings.page - settings.numlinks; i <= (settings.page + settings.numlinks); i++){
                     html += '<li>' + createLink(i) + '</li>';
                         
                 }
                 
-                html += '<li  class="notPage"><a href="#">...</a></li>';
+                html += '<li  class="notPage"><a href="javascript:void(0)">...</a></li>';
             }
                 
            
 
             if((settings.page - settings.numlinks) > 0 && (settings.page + settings.numlinks >= settings.pages) && settings.numlinks > 0){
-                html += '<li class="notPage"><a href="#" >...</a></li>';
+                html += '<li class="notPage"><a href="javascript:void(0)" >...</a></li>';
                 for(var i = settings.page - settings.numlinks; i <= settings.pages; i++){
                     html += '<li>' + createLink(i) + '</li>';
                         
                 }
             }
                 
-            html += '<li class="notPage '+ settings.classNext +'"><a href="#next">' + settings.textNext + '</a></li>';
+            html += '<li class="notPage '+ settings.classNext +'"><a href="javascript:void(0)">' + settings.textNext + '</a></li>';
             html += '</ul>';
             return html;
         }
-        
         
         function indexPages(){
             settings.pages$ = $(paginationContainer).find('li');
@@ -89,18 +92,17 @@
         
         function createLink(page){
             html = '';
-            html += '<a href="#' + page + '">' + page + '</a>';
+            html += '<a href="javascript:void(0)' + page + '">' + page + '</a>';
             return html;
         }
         
         function getCountPages(){
            if(isNaN(settings.page))return;
+           settings.dataWithPage['page'] = settings.page;
             $.ajax({
                 type: "POST",
                 url: settings.urlCountALL,
-                data: {
-                    page: settings.page
-                },
+                data:  settings.dataWithPage,
                 //contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 async: true,
@@ -159,12 +161,9 @@ $(function(){
     $('.pagination').Pagination({
         urlCountALL: 'getCountPages.php',
         getItems: function(options){
-            $.post("getItems.php", {
-                options: options, 
-                method: "getItems"
-            }, function(data) {
-                $("#items").html(data);
-            }, "html");
+            $.post("getItems.php", { options: options }, 
+                function(data) { $("#items").html(data);}
+            , "html");
         }
     });
 });

@@ -1,6 +1,5 @@
 /* 
- * Simple pagination plugin jQuery
- * 2013 year.
+ * EasyPager 2013.
  */
 
 

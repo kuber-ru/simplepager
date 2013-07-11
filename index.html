@@ -11,7 +11,8 @@
             $(function(){
                 $('.pagination').SimplePager({
                     urlCountALL: 'getCountItems.php',
-                    getItems: function(options){
+                    getItems: function(options, data){
+                        console.log(data);
                         $.post("getItems.php", { options: options }, 
                             function(data) { $("#items").html(data);}
                         , "html");
